@@ -1,0 +1,124 @@
+* 主页
+** 启用主页键
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:36]
+::         [2019-11-13 Wed 11:36]
+:END:
+
+chrome://flags/#force-enable-home-page-button
+
+** 关闭资讯
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:37]
+::         [2019-11-13 Wed 11:37]
+:END:
+
+chrome://flags/#enable-ntp-remote-suggestions
+
+** 关闭推荐
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:41]
+::         [2019-11-13 Wed 11:41]
+:END:
+
+chrome://flags/#interest-feed-content-suggestion
+
+* 工具栏优化
+
+chrome://flags/#enable-chrome-duet
+
+* 操作优化
+** 启用懒惰加载
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:48]
+::         [2019-11-13 Wed 11:48]
+:END:
+
+chrome://flags/#enable-lazy-frame-loading
+
+  chrome://flags/#enable-lazy-image-loading
+
+** 启用翻译选项
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:48]
+::         [2019-11-13 Wed 11:48]
+:END:
+
+chrome://flags/#translate-android-manual-trigger
+
+** 启用预览选项
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:48]
+::         [2019-11-13 Wed 11:48]
+:END:
+
+chrome://flags/#enable-ephemeral-tab
+
+** 启用页面缓存
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:48]
+::         [2019-11-13 Wed 11:48]
+:END:
+
+chrome://flags/#enable-offline-previews
+
+* 下载
+** 启用多线程下载
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:45]
+::         [2019-11-13 Wed 11:45]
+:END:
+
+chrome://flags/#enable-parallel-downloading
+
+** 启用新下载界面
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:46]
+::         [2019-11-13 Wed 11:46]
+:END:
+
+chrome://flags/#download-home-v2
+
+** 启用自动恢复下载
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:46]
+::         [2019-11-13 Wed 11:46]
+:END:
+
+chrome://flags/#download-auto-resumption-native
+
+* 标签页
+** 启用水平显示
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:42]
+::         [2019-11-13 Wed 11:42]
+:END:
+
+chrome://flags/#enable-horizontal-tab-switcher
+
+* 手势
+** 启动手势
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:43]
+::         [2019-11-13 Wed 11:43]
+:END:
+
+chrome://flags/#overscroll-history-navigation
+
+* 显示
+** 夜间模式
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:44]
+::         [2019-11-13 Wed 11:44]
+:END:
+
+chrome://flags/#enable-android-night-mode
+
+** 启用黑色网页
+:PROPERTIES:
+:创建:       [2019-11-13 Wed 11:45]
+::         [2019-11-13 Wed 11:45]
+:END:
+
+chrome://flags/#enable-android-web-contents-dark-mode
+

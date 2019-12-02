@@ -1,0 +1,171 @@
+/记录学习使用窗口管理器dwm的过程/
+
+* 窗口管理器
+
+窗口管理器是提供窗口边框的X客户端，它控制图形程序的外观和行为方式：边框、标题栏、大小、以及调整大小等操作。
+窗口管理器一般不提供额外的组件，比如图标之类的，它们一般由桌面环境提供。因此，窗口管理器通常不怎么耗费系统资源。
+
+* 显示管理器
+
+窗口管理器可使用显示管理器管理登陆。
+显示管理器又叫登陆管理器，通常是图形界面使用者的接口，在 *启动* 进程的最后阶段替换登陆 ~shell~ 后显示。
+与窗口管理器一样有几种不同的实现。
+
+** OS加载显示管理器
+
+~systemctl enable lightdm.service~
+
+** 登陆会话配置
+
+大部分 *显示管理器* 从 ~/usr/share/xsessions/~ 目录下，读取可用的 *会话* 。这些 *会话* ~*.desk~ 文件，包含了 *窗口管理器* 所需的标准桌面输入文件。
+登陆dwm一个例子：
+[Desktop Entry]
+Name=dwm
+Comment=Log in using the dwm window manager (without a session manager) 
+Exec=dwm 
+TryExec=/usr/bin/dwm 
+Icon= 
+Type=Application
+
+* 安装dwm
+
+~git clone git://git.suckless.org/dwm && cd dwm && make install clean~
+
+* [[https://dwm.suckless.org/tutorial/][使用教程]]
+* dwm配置策略
+
+dwm无配置文件，需通过直接修改源文件来获取相应功能。
+使用版本控制工具 ~git~ 能够很好的平衡源文件的更新，与自用源文件的修改。
+
+** 创建分支
+
+~git branch wm~ 创建wm分支， ~git checkout wm~ 切换至wm分支下，对 ~dwm~ 的源码编辑在wm分支下进行。
+
+** 更新dwm
+
+~git checkout master~ 切换至主分支， ~git pull~ 抓取dwm最新版本。
+再次切换至wm分支， ~git merge master~ 将主分支更新的内容合并到wm分支中。
+
+** 合并冲突
+
+不同的分支在对同一个文件的同一个部分进行了修改，在合并时需使用者自行修改冲突位置。
+~git~ 用
+<<<< /当前分支/
+/冲突的内容/
+====分隔符
+/冲突的内容/
+>>>> /被合并的分支/
+来展示文件中需修改的文本块。
+
+* 字体
+
+*更改* ~static const char font[] = "..."~ 中的内容。
+
+* TODO 快捷键
+DEADLINE: <2019-11-28 Thu 22:36> SCHEDULED: <2019-11-28 Thu 07:35>
+
+** 定义
+
+在 ~dwm.c~ 中对 ~Key~ 做如下定义：
+typedef struct {
+     unsigned int mod;
+     KeySym keysym;
+     void (*func) (const Arg *);
+     const Arg arg;
+} Key;
+其中，Arg的定义：
+typedef union {
+     int i;
+     unsigned int ui;
+     float f;
+     const void *v;
+} Arg;
+
+** 更改快捷键
+
+在 ~config.def.h~ 中更改键位
+
+*** DONE MOD键
+CLOSED: [2019-11-28 Thu 19:45]
+
+*更改* ~#define MODKEY Mod1Mask~ => ~#define MODKEY Mod4Mask~
+
+*** DONE 终端
+CLOSED: [2019-11-28 Thu 19:47]
+
+*更改* ~static const char *termcmd[] = { "st", NULL };~ => ~static const char *termcmd[] = { "xfce4-terminal", NULL };~
+
+数组 ~keys~ 中：
+*更改* ~{ MODKEY|ShiftMask, XK_Return, spawn, {.v = termcmd } },~ => ~{ MODKEY, XK_Return, spawn, {.v = termcmd } },~
+
+*** DONE Dmenu
+CLOSED: [2019-11-28 Thu 19:47]
+
+数组 ~keys~ 中:
+*更改* ~{ MODKEY, XK_p, spawn, {.v = dmenucmd } },~ => ~{ MODKEY, XK_r, spawn, {.v = dmenucmd } },~
+
+*** DONE Firefox
+CLOSED: [2019-11-28 Thu 19:51]
+
+*添加* ~static const char *browsercmd[] = { "firefox", NULL };~ 
+
+数组 ~keys~ 中:
+*添加* ~{ MODKEY, XK_w, spawn, {.v = browsercmd } },~
+
+*** DONE Master 和 Stack 窗口切换
+CLOSED: [2019-11-28 Thu 19:51]
+
+数组 ~keys~ 中：
+*更改* ~{ MODKEY, XK_Return, zoom, {0} },~ => ~{ MODKEY, XK_s, zoom, {0} },~
+
+*** DONE 关闭窗口
+CLOSED: [2019-11-28 Thu 19:52]
+
+数组 ~keys~ 中：
+*更改* 	~{ MODKEY|ShiftMask, XK_c, killclient, {0} },~ => ~{ MODKEY, XK_c, killclient, {0} },~
+
+*** 其它
+* 补丁
+:PROPERTIES:
+:LAST_REPEAT: [2019-11-27 Wed 21:39]
+:END:
+
+** DONE zoomswap
+CLOSED: [2019-11-28 Thu 21:24]
+
+This patch swaps the current window (C) with the previous master (P) when zooming.
+
+** alpha
+
+窗口半透明
+
+** DONE alternativetags
+CLOSED: [2019-11-28 Thu 21:24]
+
+以图形替代标签，使标签变得好看
+
+** DONE centeredwindowname
+CLOSED: [2019-11-28 Thu 23:11]
+
+将当前窗口名居中显示在状态栏上
+
+** 备用补丁
+*** autoresize
+
+By default, windows that are not visible when requesting a resize/move won't get resized/moved. With this patch, they will.
+
+*** cfacts
+
+调整各窗口尺寸
+
+*** customise dwm through command line
+
+Rebuilding dwm to change font or color can become annoying. This patch solves this problem allowing to set these parameters through command line
+
+* 其它设置
+** TODO 规则(Rules)
+* 实用工具
+** dmenu
+*** patch
+**** prefix completion
+**** Text Scrolling

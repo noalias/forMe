@@ -1,0 +1,7 @@
+/学习[[https://book.itsfun.tk/gopl-zh/][Go书]]/
+
+* Web Server
+** Server函数
+
+一般用 =ListenAndServe()= 函数，创建一个Serve，该Serve监听链接的请求，根据请求调用处理函数
+
