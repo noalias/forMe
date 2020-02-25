@@ -389,11 +389,220 @@ let a = A::Unit; //非`()`
 
 ### 函数指针
 
-## 范型参数
+## 范型
+
+能被参数化的项称为**泛型项**，包括：
+
+- 函数
+- 类型别名
+- 结构体
+- 枚举
+- `trait`
+- `impl`
+
+这些项能被**类型**和**生命周期**参数化，参数被列在项名后面的`<>`中，而`impl`无项名所以`<>`直接位于`impl`关键字之后，声明周期参数必须列在类型参数之前。
+
+泛型项的泛型参数运用于项内部的部件：
+
+```rust
+fn f<'a, T>(num: i32, plus: &'a T) -> i32 { // 声明了一个泛型函数，声明中的参数和返回值必要时应注明对应的类型和声明周期参数
+    //
+}
+struct A<'a, T, Y> { // 声明了一个结构体，类型和声明周期参数，运用于结构体字段
+    a: &'a T,
+    b: Y,
+}
+trait A<T> {
+    fn new() -> Self::T;
+}
+impl<T> 
+```
+
+
 
 ### 生命周期
 
 ## Trait
+
+`trait`定义一组能被实现的抽象接口，接口由三种关联的项组成：
+
+- 函数
+- 类型别名
+- 常量
+
+`trait`定义一个隐含的类型参数`Self`,表示所有实现了该接口的**类型**。`trait`也可以包含额外的类型参数，这些类型参数（包括`Self`）可以被其他的`trait`约束。
+
+`trait`被特定的类型通过`impl`项实现，`trait`定义时，关联项可以被定义也可以不定义：如果定义了，所有的`impl`项若未**重载**关联项，则这些定义作为`impl`项的默认实现；否则，`impl`必须实现这些关联项。
+
+泛型使用`trait`作为类型参数的绑定。`trait`可以指定类型参数，作为一个泛型`trait`。
+
+### 关联项
+
+**关联项**是声明在`trait`中或定义在`impl`中的项。关联项有两种：`impl`中的**定义**，`trait`项签名的**声明**。
+
+#### 关联函数和方法
+
+**关联函数声明**语句为关联函数定义声明一个签名，**关联函数定义**必须与声明的签名保持一致；当关联函数在`trait`中声明后，函数可以通过附加在`trait`名上的路径进行调用，一旦调用路径被替换为`<_ as Trait>::function_name`。
+
+```rust
+trait Num {
+    fn from_i32(n: i32) -> Self; // 声明关联函数
+}
+
+impl Num for f64 {
+    fn from_i32(n: i32) -> f64 { n as f64 } // 定义关联函数
+}
+
+// 调用关联函数
+let _: f64 = Num::from_i32(42); // 通过trait名路径调用关联函数
+let _: f64 = <_ as Num>::from_i32(42); // 调用关联函数
+let _: f64 = <f64 as Num>::from_i32(42); // 通过转化类型为trait调用关联函数
+let _: f64 = f64::from_i32(42); // 通过类型调用关联函数
+```
+
+第一参数命名为`self`的关联函数被称为**方法**,可通过方法调用操作符`.`调用。`self`参数限定为下述类型：
+
+- `Self`
+- `&Self`
+- `&mut Self`
+- `Box<Self>`
+- `Rc<Self>`
+- `Arc<Self>`
+- `Pin<P>` P为上述几种类型，除了`Self`类型
+
+可以使用简写语法来不指定类型：
+
+```rust
+struct Example;
+impl Exmple {
+    fn by_value_1(self: Self) {}
+    fn by_value_2(self) {} // 等同于上式
+    
+    fn by_ref_1(self: &Self) {}
+    fn by_ref_2(&self) {} // 等同于上式
+    
+    fn by_ref_mut_1(self: &mut Self) {}
+    fn by_ref_mut_2(&mut self) {} // 等同于上式
+    
+    fn by_box(self: Box<Self>) {}
+    fn by_rc(self: Rc<Self>) {}
+    fn by_arc(self: Arc<Self>) {}
+    fn by_pin(self: Pin<&Self>) {}
+    fn explicit_type(self: Arc<Example>) {} // 可以使用正在实现的类型替代Self
+    fn with_lifetime<'a>(self: &'a Self) {}
+}
+```
+
+可以使用`mut`修饰`self`，与`mut`修饰表示符类似。
+
+#### 关联类型
+
+**关联类型**是与其它类型相关联的类型别名。关联类型不能在类型**固有impl**中定义，也不能在`trait`中有默认实现，即关联类型只能在`trait`中声明，在特定类型对`trait`的实现中定义。**关联类型声明**为**关联类型定义**声明一个签名。
+
+```rust
+trait AssociatedType {
+    type Assoc; // 声明关联类型
+}
+struct Struct;
+struct OtherStruct;
+impl AssociatedType for Struct {
+    type Assoc = OtherStruct; // 定义关联类型
+}
+impl OtherStruct {
+    fn new() -> OtherStruct {
+        OtherStruct
+    }
+}
+
+fn main() {
+    let _other_struct：OtherStruct = <Struct as AssociatedType>::Assoc::new(); //AssociatedType::Assoc 在 Struct的实现中为 OtherStruct 的别名
+}
+```
+
+关联类型的意义，在`trait`中若需要实现`trait`的类型对_另外的类型_进行操作，而该类型需要在具体的实现中确定，那么在`trait`声明中可通过`type`声明为该类型设置占位符。
+
+```rust
+pub trait Iterator {
+    type Item;
+    fn next(&mut self) -> Option<Self::Item>;
+}
+impl Iterator for Counter { // 实现trait时，需要将Item一同实现
+    type Item = u32;
+    fn next(&mut self) -> Option<u32> { // 关联类型被实现中指定的类型替代
+    //
+    }
+}
+```
+
+那么为什么不直接实现一个泛型`trait`?
+
+#### 关联常量
+
+```rust
+trait ConstantId {
+    const ID: i32; // 声明关联常量
+}
+
+struct Struct;
+
+impl ConstantId for Struct {
+    const ID: i32 = 1; // 定义关联常量
+}
+trait ConstantIdDefault {
+    const ID: i32 = 1; // 声明一个默认关联常量
+}
+
+struct Struct;
+struct OtherStruct;
+
+impl ConstantIdDefault for Struct {} // 使用默认关联常量
+
+impl ConstantIdDefault for OtherStruct { // 重载默认常量
+    const ID: i32 = 5;
+}
+
+fn main() {
+    assert_eq!(1, Struct::ID);
+    assert_eq!(5, OtherStruct::ID);
+}
+```
+
+
+
+### `Supertraits`
+
+`supertraits`是某个类型在实现特定`trait`时，必须实现的`trait`。此外，如果任一泛型或`trait`对象被`trait`绑定，则该泛型或`trait`对象可以访问`supertraits`的关联项。
+
+`supertraits`通过对特定`trait Self`的`trait`绑定进行定义，当`trait`定义在绑定中，传递`supertrait`。`trait`称为`supertrait`的`subtrait`。
+
+```rust
+trait Shape { fn area(&self) -> f64; }
+trait Circle : Shape { fn radius(&self) -> f64; } //将Shape声明为Circle的supertrait
+
+trait Circle where Self: Shape { //另一种声明supertrait的方式
+    fn radius(&self) -> f64 {
+        // A = pi * r^2
+        // so algebraically,
+        // r = sqrt(A / pi)
+        (self.area() /std::f64::consts::PI).sqrt() //可直接访问supertrait的关联项area
+    }
+}
+
+fn print_area_and_radius<C: Circle>(c: C) {
+    // Here we call the area method from the supertrait `Shape` of `Circle`.
+    println!("Area: {}", c.area()); //supertrait传递给绑定trait的泛型
+    println!("Radius: {}", c.radius());
+}
+```
+
+### 参数模式
+
+函数或方法未定义体，其参数模式只能是**标识符**或**—**模式（通配符），只限于：
+
+- _identifier_
+- —（通配符）
+- `&` _identifier_
+- `&&` _identifier_
 
 # 模式
 
